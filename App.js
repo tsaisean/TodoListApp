@@ -1,5 +1,13 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, Button, TextInput, KeyboardAvoidingView, Keyboard } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  Button,
+  TextInput,
+  KeyboardAvoidingView,
+  Keyboard
+} from 'react-native';
 import Expo from 'expo';
 import uuidv4 from 'uuid/v4';
 import ListItem from './ListItem';
@@ -14,18 +22,21 @@ export default class App extends React.Component {
         { id: uuidv4(), title: '1' },
         { id: uuidv4(), title: '2' },
         { id: uuidv4(), title: '3' }
-      ]
+      ],
+      text: '',
+      isEditing: false,
+      selected: null
     };
   }
 
-  onSwipeOpen = (rowIndex) => {
+  onSwipeOpen = rowIndex => {
     console.log(`onSwipeOpen: ${rowIndex}`);
     this.setState({
       selected: rowIndex
     });
-  }
+  };
 
-  onEdit = (id) => {
+  onEdit = id => {
     console.log(`[editItem] id: ${id}}`);
 
     const editingItem = this.state.items.find(item => item.id === id);
@@ -36,7 +47,7 @@ export default class App extends React.Component {
     });
   };
 
-  onDelete = (id) => {
+  onDelete = id => {
     const newItems = this.state.items.filter(item => item.id !== id);
     console.log(`[onDelete] newItems: ${newItems}}`);
     this.setState({
@@ -45,21 +56,25 @@ export default class App extends React.Component {
     });
   };
 
-  editItem = (selected) => {
+  editItem = () => {
+    const { selected } = this.state;
     console.log(`[editItem] selected: ${selected}}`);
 
-    const updatedItem = { id: this.state.items[selected].id, title: this.state.text };
+    const newItems = [...this.state.items];
+    newItems[selected] = {
+      id: this.state.items[selected].id,
+      title: this.state.text
+    };
 
     this.setState({
-      items: [...this.state.items.slice(0, selected),
-        updatedItem,
-        ...this.state.items.slice(selected + 1, this.state.items.length)],
+      items: newItems,
       text: '',
-      selected: null
+      selected: null,
+      isEditing: false
     });
 
     Keyboard.dismiss();
-  }
+  };
 
   addItem = () => {
     this.setState({
@@ -68,15 +83,15 @@ export default class App extends React.Component {
     });
 
     Keyboard.dismiss();
-  }
+  };
 
   render() {
     return (
       <View style={styles.container}>
         <FlatList
           data={this.state.items}
-          renderItem={({ item, index }) =>
-            (<ListItem
+          renderItem={({ item, index }) => (
+            <ListItem
               id={item.id}
               title={item.title}
               onEdit={this.onEdit}
@@ -84,10 +99,10 @@ export default class App extends React.Component {
               onSwipeOpen={this.onSwipeOpen}
               index={index}
               isSelected={this.state.selected === index}
-            />)
-          }
-          keyExtractor={(item) => item.id}
-          extraData={this.state}
+            />
+          )}
+          keyExtractor={item => item.id}
+          extraData={this.state.isSelected}
         />
 
         <KeyboardAvoidingView
@@ -98,20 +113,24 @@ export default class App extends React.Component {
           <TextInput
             style={styles.textInput}
             placeholder="Add todo here..."
-            // TODO: Can we or should we do debounce here?
-            onChangeText={(text) => this.setState({ text })}
+            onChangeText={text => this.setState({ text })}
             value={this.state.text}
           />
-          <View
-            style={styles.buttonContainer}
-          >
-            <Button
-              title={this.state.isEditing ? 'Update' : 'Add item'}
-              onPress={this.state.isEditing ? () => { this.editItem(this.state.selected); } : this.addItem}
-              disabled={!this.state.text}
-            />
+          <View style={styles.buttonContainer}>
+            {this.state.isEditing ? (
+              <Button
+                title="Update"
+                onPress={this.editItem}
+                disabled={!this.state.text}
+              />
+            ) : (
+              <Button
+                title="Add item"
+                onPress={this.addItem}
+                disabled={!this.state.text}
+              />
+            )}
           </View>
-
         </KeyboardAvoidingView>
       </View>
     );

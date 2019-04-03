@@ -23,31 +23,30 @@ class ListItem extends React.PureComponent {
     ];
   }
 
-    onPressItem = () => {
-      console.log('sdfsdf');
-    };
+  onOpen = () => {
+    this.props.onSwipeOpen(this.props.index);
+  };
 
-
-    render() {
-      console.log(`[ListItem][render] index: ${this.props.index}`);
-      return (
-        <Swipeout
-          right={this.swipeoutBtns}
-          backgroundColor="#fff"
-          close={!this.props.isSelected}
-          onOpen={() => (this.props.onSwipeOpen(this.props.index))}
+  render() {
+    console.log(`[ListItem][render] index: ${this.props.index}`);
+    return (
+      <Swipeout
+        right={this.swipeoutBtns}
+        backgroundColor="#fff"
+        close={!this.props.isSelected}
+        onOpen={this.onOpen}
+      >
+        <TouchableHighlight
+          style={styles.container}
+          onPress={this.onPressItem}
+          underlayColor="#d6d6d6"
         >
-          <TouchableHighlight
-            style={styles.container}
-            onPress={this.onPressItem}
-            underlayColor="#d6d6d6"
-          >
 
-            <Text style={styles.text}> {this.props.title}</Text>
-          </TouchableHighlight>
-        </Swipeout>
-      );
-    }
+          <Text style={styles.text}> {this.props.title}</Text>
+        </TouchableHighlight>
+      </Swipeout>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
